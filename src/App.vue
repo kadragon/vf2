@@ -2,7 +2,7 @@
   <v-app>
     <v-app-bar app color="primary" dark>
       <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
-      <site-title :title="title" />
+      <site-title :title="site.title" />
       <v-spacer />
       <v-btn icon @click="save">
         <v-icon>mdi-check</v-icon>
@@ -16,14 +16,14 @@
     </v-app-bar>
 
     <v-navigation-drawer app absolute temporary v-model="drawer">
-      <site-Menu />
+      <site-Menu :items="site.menu" />
     </v-navigation-drawer>
 
     <v-main>
       <router-view></router-view>
     </v-main>
 
-    <site-footer :footer="footer" />
+    <site-footer :footer="site.footer" />
   </v-app>
 </template>
 
@@ -38,15 +38,41 @@ export default {
   data() {
     return {
       drawer: null,
-      items: [],
-      title: "Vue+Firebase",
-      footer: "kadragon"
+      site: {
+        menu: [],
+        title: "Vue+Firebase",
+        footer: "kadragon"
+      }
     };
   },
-  mounted() {
-    console.log(this.$firebase);
+  created() {
+    this.subscribe();
   },
+  mounted() {},
   methods: {
+    subscribe() {
+      this.$firebase
+        .database()
+        .ref()
+        .child("site")
+        .on(
+          "value",
+          sn => {
+            const v = sn.val();
+            if (!v) {
+              this.$firebase
+                .database()
+                .ref()
+                .child("site")
+                .set(this.site);
+            }
+            this.site = v;
+          },
+          e => {
+            console.log(e.message);
+          }
+        );
+    },
     save() {
       this.$firebase
         .database()
