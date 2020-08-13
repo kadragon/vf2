@@ -1,9 +1,9 @@
 <template>
   <div>
-    <v-list-item>
+    <v-list-item three-line>
       <v-list-item-content>
-        <v-list-item-title class="title">Application</v-list-item-title>
-        <v-list-item-subtitle>subtext</v-list-item-subtitle>
+        <v-list-item-title class="title">Menu</v-list-item-title>
+        <v-list-item-subtitle>0.0.1 by K</v-list-item-subtitle>
       </v-list-item-content>
     </v-list-item>
 
@@ -37,6 +37,14 @@
             <v-list-item-title v-text="subItem.title"></v-list-item-title>
           </v-list-item-content>
         </v-list-item>
+        <v-list-item @click="openDialogSubItem(i, -1)">
+          <v-list-item-icon>
+            <v-icon>mdi-plus</v-icon>
+          </v-list-item-icon>
+          <v-list-item-content>
+            <v-list-item-title>추가하기</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
       </v-list-group>
 
       <v-list-item @click="openDialogItem(-1)">
@@ -57,9 +65,54 @@
           <v-btn icon @click="saveItem"
             ><v-icon>mdi-content-save</v-icon></v-btn
           >
+          <v-btn @click="dialogItem = false" icon
+            ><v-icon>mdi-close</v-icon></v-btn
+          >
         </v-card-title>
         <v-card-text>
-          <v-text-field v-model="formItem.title"></v-text-field>
+          <v-text-field
+            v-model="formItem.title"
+            label="제목"
+            outlined
+            required
+          ></v-text-field>
+          <v-text-field
+            v-model="formItem.icon"
+            label="icon"
+            outlined
+            required
+            @keydown.enter="saveItem"
+          ></v-text-field>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="dialogSubItem" max-width="400">
+      <v-card>
+        <v-card-title>
+          서브 아이템
+          <v-spacer />
+          <v-btn @click="saveSubItem" icon color=""
+            ><v-icon>mdi-content-save</v-icon></v-btn
+          >
+          <v-btn @click="dialogSubItem = false" icon
+            ><v-icon>mdi-close</v-icon></v-btn
+          >
+        </v-card-title>
+        <v-card-text>
+          <v-text-field
+            v-model="formSubItem.title"
+            label="메뉴 이름"
+            outlined
+            required
+          ></v-text-field>
+          <v-text-field
+            v-model="formSubItem.to"
+            label="경로"
+            outlined
+            required
+            @keydown.enter="saveSubItem"
+          ></v-text-field>
         </v-card-text>
       </v-card>
     </v-dialog>
@@ -77,24 +130,65 @@ export default {
         icon: "",
         title: ""
       },
-      selectedItemIndex: -1
+      formSubItem: {
+        title: "",
+        to: ""
+      },
+      selectedItemIndex: -1,
+      selectedSubItemIndex: -1
     };
   },
   methods: {
     openDialogItem(index) {
       this.selectedItemIndex = index;
-      this.dialogItem = true;
+
       if (index < 0) {
         this.formItem.title = "";
+        this.formItem.icon = "mdi-crosshairs-question";
       } else {
         this.formItem.title = this.items[index].title;
+        this.formItem.icon = this.items[index].icon;
       }
+
+      this.dialogItem = true;
     },
-    saveItem() {
+
+    async saveItem() {
       if (this.selectedItemIndex < 0) {
         this.items.push(this.formItem);
       } else {
-        this.times[this.selectedItemIndex] = this.formItem;
+        this.items[this.selectedItemIndex].title = this.formItem.title;
+        this.items[this.selectedItemIndex].icon = this.formItem.icon;
+      }
+      this.save();
+    },
+    openDialogSubItem(index, subIndex) {
+      this.selectedItemIndex = index;
+      this.selectedSubItemIndex = subIndex;
+      if (subIndex < 0) {
+        this.formSubItem.title = "";
+        this.formSubItem.to = "";
+      } else {
+        this.formSubItem.title = this.items[index].item[subIndex].title;
+        this.formSubItem.icon = this.items[index].item[subIndex].icon;
+      }
+      this.dialogSubItem = true;
+    },
+    async saveSubItem() {
+      if (this.selectedSubItemIndex < 0) {
+        if (!this.items[this.selectedItemIndex].items)
+          this.items[this.selectedItemIndex].items = [];
+        this.items[this.selectedItemIndex].items.push({
+          title: this.formSubItem.title,
+          to: this.formSubItem.to
+        });
+      } else {
+        this.items[this.selectedItemIndex].items[
+          this.selectedSubItemIndex
+        ].title = this.formSubItem.title;
+        this.items[this.selectedItemIndex].items[
+          this.selectedSubItemIndex
+        ].to = this.formSubItem.to;
       }
       this.save();
     },
@@ -104,9 +198,11 @@ export default {
           .database()
           .ref()
           .child("site")
-          .update({ menu: this.items });
+          .child("menu")
+          .set(this.items);
       } finally {
         this.dialogItem = false;
+        this.dialogSubItem = false;
       }
     }
   }
