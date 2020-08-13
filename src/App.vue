@@ -6,7 +6,7 @@
       <v-spacer></v-spacer>
     </v-app-bar>
 
-    <v-navigation-drawer app absolute temporary v-model="drawer">
+    <v-navigation-drawer app absolute temporary v-model="drawer" width="400">
       <site-Menu :items="site.menu" />
     </v-navigation-drawer>
 
@@ -29,37 +29,7 @@ export default {
   data() {
     return {
       drawer: null,
-      site: {
-        menu: [
-          {
-            title: "HOME",
-            icon: "mdi-home",
-            items: [
-              {
-                title: "Dashboard",
-                to: "/"
-              },
-              {
-                title: "About",
-                to: "/about"
-              }
-            ]
-          },
-          {
-            title: "About",
-            icon: "mdi-account",
-            active: true,
-            items: [
-              {
-                title: "About",
-                to: "/About"
-              }
-            ]
-          }
-        ],
-        title: "Vue+Firebase",
-        footer: "kadragon"
-      }
+      site: {}
     };
   },
   created() {
