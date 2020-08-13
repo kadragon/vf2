@@ -52,8 +52,6 @@ export default {
           .child("site")
           .update({ footer: this.text });
         this.dialog = false;
-      } catch (e) {
-        console.log(e.message);
       } finally {
         this.dialog = false;
       }
