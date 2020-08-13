@@ -3,16 +3,7 @@
     <v-app-bar app color="primary" dark>
       <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
       <site-title :title="site.title" />
-      <v-spacer />
-      <v-btn icon @click="save">
-        <v-icon>mdi-check</v-icon>
-      </v-btn>
-      <v-btn icon @click="read">
-        <v-icon>mdi-numeric</v-icon>
-      </v-btn>
-      <v-btn icon @click="readOne">
-        <v-icon>mdi-ab-testing</v-icon>
-      </v-btn>
+      <v-spacer></v-spacer>
     </v-app-bar>
 
     <v-navigation-drawer app absolute temporary v-model="drawer">
@@ -39,7 +30,33 @@ export default {
     return {
       drawer: null,
       site: {
-        menu: [],
+        menu: [
+          {
+            title: "HOME",
+            icon: "mdi-home",
+            items: [
+              {
+                title: "Dashboard",
+                to: "/"
+              },
+              {
+                title: "About",
+                to: "/about"
+              }
+            ]
+          },
+          {
+            title: "About",
+            icon: "mdi-account",
+            active: true,
+            items: [
+              {
+                title: "About",
+                to: "/About"
+              }
+            ]
+          }
+        ],
         title: "Vue+Firebase",
         footer: "kadragon"
       }
@@ -65,6 +82,7 @@ export default {
                 .ref()
                 .child("site")
                 .set(this.site);
+              return;
             }
             this.site = v;
           },
@@ -72,34 +90,6 @@ export default {
             console.log(e.message);
           }
         );
-    },
-    save() {
-      this.$firebase
-        .database()
-        .ref()
-        .child("abcd")
-        .set({
-          title: "abcd",
-          text: "ttttt"
-        });
-    },
-    read() {
-      this.$firebase
-        .database()
-        .ref()
-        .child("abcd")
-        .on("value", sn => {
-          console.log(sn);
-          console.log(sn.val());
-        });
-    },
-    async readOne() {
-      const sn = await this.$firebase
-        .database()
-        .ref()
-        .child("abcd")
-        .once("value");
-      console.log(sn.val());
     }
   }
 };
