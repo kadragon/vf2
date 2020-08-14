@@ -9,7 +9,7 @@
 
     <v-divider></v-divider>
 
-    <v-list>
+    <v-list nav>
       <v-list-group
         v-for="(item, i) in items"
         :key="i"
@@ -19,13 +19,24 @@
       >
         <template v-slot:activator>
           <v-list-item-content>
-            <v-list-item-title v-text="item.title"></v-list-item-title>
+            <v-list-item-title>
+              {{ item.title }}
+              <!-- <v-list-item-action> -->
+              <v-btn @click="openDialogItem(i)" icon>
+                <v-icon>mdi-content-save-edit</v-icon>
+              </v-btn>
+              <v-btn @click="moveItem(items, i, -1)" icon v-if="i > 0"
+                ><v-icon>mdi-chevron-double-up</v-icon></v-btn
+              >
+              <v-btn
+                @click="moveItem(items, i, 1)"
+                icon
+                v-if="i < items.length - 1"
+                ><v-icon>mdi-chevron-double-down</v-icon></v-btn
+              >
+              <!-- </v-list-item-action> -->
+            </v-list-item-title>
           </v-list-item-content>
-          <v-list-item-action>
-            <v-btn @click="openDialogItem(i)" icon
-              ><v-icon>mdi-content-save-edit</v-icon></v-btn
-            >
-          </v-list-item-action>
         </template>
 
         <v-list-item
@@ -34,7 +45,18 @@
           :to="subItem.to"
         >
           <v-list-item-content>
-            <v-list-item-title v-text="subItem.title"></v-list-item-title>
+            <v-list-item-title>
+              {{ subItem.title }}
+              <v-btn @click="moveItem(item.items, j, -1)" icon v-if="j > 0"
+                ><v-icon>mdi-chevron-double-up</v-icon></v-btn
+              >
+              <v-btn
+                @click="moveItem(item.items, j, 1)"
+                icon
+                v-if="j < item.items.length - 1"
+                ><v-icon>mdi-chevron-double-down</v-icon></v-btn
+              >
+            </v-list-item-title>
           </v-list-item-content>
         </v-list-item>
         <v-list-item @click="openDialogSubItem(i, -1)">
@@ -62,12 +84,12 @@
         <v-card-title>
           수정하기
           <v-spacer />
-          <v-btn icon @click="saveItem"
-            ><v-icon>mdi-content-save</v-icon></v-btn
-          >
-          <v-btn @click="dialogItem = false" icon
-            ><v-icon>mdi-close</v-icon></v-btn
-          >
+          <v-btn icon @click="saveItem">
+            <v-icon>mdi-content-save</v-icon>
+          </v-btn>
+          <v-btn @click="dialogItem = false" icon>
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
         </v-card-title>
         <v-card-text>
           <v-text-field
@@ -92,12 +114,12 @@
         <v-card-title>
           서브 아이템
           <v-spacer />
-          <v-btn @click="saveSubItem" icon color=""
-            ><v-icon>mdi-content-save</v-icon></v-btn
-          >
-          <v-btn @click="dialogSubItem = false" icon
-            ><v-icon>mdi-close</v-icon></v-btn
-          >
+          <v-btn @click="saveSubItem" icon color>
+            <v-icon>mdi-content-save</v-icon>
+          </v-btn>
+          <v-btn @click="dialogSubItem = false" icon>
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
         </v-card-title>
         <v-card-text>
           <v-text-field
@@ -204,6 +226,11 @@ export default {
         this.dialogItem = false;
         this.dialogSubItem = false;
       }
+    },
+    moveItem(items, i, arrow) {
+      const item = items.splice(i, 1)[0];
+      items.splice(i + arrow, 0, item);
+      this.save();
     }
   }
 };
