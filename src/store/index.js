@@ -4,8 +4,14 @@ import Vuex from "vuex";
 Vue.use(Vuex);
 
 export default new Vuex.Store({
-  state: {},
-  mutations: {},
+  state: {
+    fireUser: null
+  },
+  mutations: {
+    setFireUser(state, fu) {
+      state.fireUser = fu;
+    }
+  },
   actions: {},
   modules: {}
 });

@@ -3,7 +3,8 @@
     <v-app-bar app color="primary" dark>
       <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
       <site-title :title="site.title" />
-      <v-spacer></v-spacer>
+      <v-spacer />
+      <site-sign></site-sign>
     </v-app-bar>
 
     <v-navigation-drawer app absolute temporary v-model="drawer" width="400">
@@ -22,9 +23,10 @@
 import SiteTitle from "@/components/site/Title";
 import SiteFooter from "@/components/site/Footer";
 import SiteMenu from "@/components/site/Menu";
+import SiteSign from "@/components/site/Sign";
 
 export default {
-  components: { SiteTitle, SiteFooter, SiteMenu },
+  components: { SiteTitle, SiteFooter, SiteMenu, SiteSign },
   name: "App",
   data() {
     return {
