@@ -56,8 +56,7 @@ export default {
       this.loading = true;
 
       try {
-        const sn = await this.$firebase.auth().signInWithPopup(provider);
-        this.$store.commit("setFireUser", sn.user);
+        await this.$firebase.auth().signInWithPopup(provider);
       } finally {
         this.loading = false;
       }
