@@ -36,4 +36,4 @@ pnpm-debug.log*
 
 # End of https://www.toptal.com/developers/gitignore/api/firebase
 
-functions/kadragon-vf2-firebase-adminsdk.json
+functions/firebase-adminsdk.json

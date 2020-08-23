@@ -1,19 +1,11 @@
 const functions = require("firebase-functions");
 
-// // Create and Deploy Your First Cloud Functions
-// // https://firebase.google.com/docs/functions/write-firebase-functions
-//
-// exports.helloWorld = functions.https.onRequest((request, response) => {
-//   functions.logger.info("Hello logs!", {structuredData: true});
-//   response.send("Hello from Firebase!");
-// });
-
 var admin = require("firebase-admin");
-var serviceAccount = require("./kadragon-vf2-firebase-adminsdk.json");
+var serviceAccount = require("./firebase-adminsdk.json");
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://kadragon-vf2.firebaseio.com"
+  databaseURL: functions.config().admin.db_url
 });
 
 const db = admin.database();
@@ -27,7 +19,8 @@ exports.createUser = functions
       email,
       displayName,
       photoURL,
-      createdAt: new Date()
+      createdAt: new Date().getTime(),
+      level: email === functions.config().admin.email ? 0 : 5
     };
     db.ref("users")
       .child(uid)
