@@ -21,7 +21,7 @@
           <v-list-item-content>
             <v-list-item-title>
               {{ item.title }}
-              <!-- <v-list-item-action> -->
+
               <v-btn @click="openDialogItem(i)" icon>
                 <v-icon>mdi-content-save-edit</v-icon>
               </v-btn>
@@ -34,7 +34,9 @@
                 v-if="i < items.length - 1"
                 ><v-icon>mdi-chevron-double-down</v-icon></v-btn
               >
-              <!-- </v-list-item-action> -->
+              <v-btn @click="removeItem(items, i)" icon
+                ><v-icon>mdi-timeline-remove-outline</v-icon></v-btn
+              >
             </v-list-item-title>
           </v-list-item-content>
         </template>
@@ -55,6 +57,9 @@
                 icon
                 v-if="j < item.items.length - 1"
                 ><v-icon>mdi-chevron-double-down</v-icon></v-btn
+              >
+              <v-btn @click="removeItem(item.items, j)" icon
+                ><v-icon>mdi-timeline-remove-outline</v-icon></v-btn
               >
             </v-list-item-title>
           </v-list-item-content>
@@ -230,6 +235,10 @@ export default {
     moveItem(items, i, arrow) {
       const item = items.splice(i, 1)[0];
       items.splice(i + arrow, 0, item);
+      this.save();
+    },
+    removeItem(items, i) {
+      items.splice(i, 1);
       this.save();
     }
   }
