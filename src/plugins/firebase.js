@@ -4,6 +4,7 @@ import * as firebase from "firebase/app";
 import "firebase/auth";
 import "firebase/firebase-database";
 import "firebase/firebase-storage";
+import "firebase/firebase-firestore";
 
 import runtimeconfig from "../../.runtimeconfig";
 
