@@ -2,7 +2,13 @@
   <v-card>
     <v-card-title>BOARD Test</v-card-title>
 
-    <v-data-table :headers="headers" :items="items" :items-per-page="5">
+    <v-data-table
+      :headers="headers"
+      :items="items"
+      :items-per-page="5"
+      :options.sync="options"
+      :server-items-length="serverItemsLength"
+    >
       <template v-slot:item.id="{ item }">
         <v-btn icon @click="openDialog(item)">
           <v-icon>mdi-pencil</v-icon>
@@ -56,21 +62,45 @@ export default {
       },
       dialog: false,
       selectedItem: null,
-      unsubscribe: null
+      unsubscribe: null,
+      unsubscribeCount: null,
+      options: {},
+      serverItemsLength: 0
     };
+  },
+  watch: {
+    options: {
+      handler(n, o) {
+        console.log(o);
+        console.log(n);
+        this.subscribe();
+      },
+      deep: true
+    }
   },
   created() {
     // this.read();
-    this.subscribe();
+    // this.subscribe();
   },
   destroyed() {
     if (this.unsubscribe) this.unsubscribe();
+    if (this.unsubscribeCount) this.unsubscribeCount();
   },
   methods: {
     subscribe() {
+      this.unsubscribeCount = this.$firebase
+        .firestore()
+        .collection("meta")
+        .doc("boards")
+        .onSnapshot(doc => {
+          if (!doc.exists) return;
+          this.serverItemsLength = doc.data().count;
+        });
+
       this.unsubscribe = this.$firebase
         .firestore()
         .collection("boards")
+        .limit(this.options.itemsPerPage)
         .onSnapshot(sn => {
           if (sn.empty) {
             this.items = [];
@@ -84,7 +114,6 @@ export default {
               content: item.content
             };
           });
-          console.log(this.items);
         });
     },
     openDialog(item) {
@@ -125,7 +154,6 @@ export default {
           content: item.content
         };
       });
-      console.log(this.items);
     },
     remove(item) {
       this.$firebase
