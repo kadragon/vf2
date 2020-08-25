@@ -9,6 +9,7 @@ admin.initializeApp({
 });
 
 const db = admin.database();
+const fdb = admin.firestore();
 
 exports.createUser = functions
   .region("asia-northeast3")
@@ -35,4 +36,31 @@ exports.deleteUser = functions
     db.ref("users")
       .child(uid)
       .remove();
+  });
+
+exports.incrementBoardCount = functions
+  .region("asia-northeast3")
+  .firestore.document("boards/{bid}")
+  .onCreate(async (snap, context) => {
+    try {
+      await fdb
+        .collection("meta")
+        .doc("boards")
+        .update("count", admin.firestore.FieldValue.increment(1));
+    } catch (e) {
+      await fdb
+        .collection("meta")
+        .doc("boards")
+        .set({ count: 1 });
+    }
+  });
+
+exports.decrementBoardCount = functions
+  .region("asia-northeast3")
+  .firestore.document("boards/{bid}")
+  .onDelete(async (snap, context) => {
+    await fdb
+      .collection("meta")
+      .doc("boards")
+      .update("count", admin.firestore.FieldValue.increment(-1));
   });
