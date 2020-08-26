@@ -8,6 +8,7 @@
       :items-per-page="5"
       :options.sync="options"
       :server-items-length="serverItemsLength"
+      must-sort
     >
       <template v-slot:item.id="{ item }">
         <v-btn icon @click="openDialog(item)">
@@ -59,7 +60,7 @@ export default {
         { value: "createdAt", text: "작성시간" },
         { value: "title", text: "제목" },
         { value: "content", text: "내용" },
-        { value: "id", text: "" }
+        { value: "id", text: "", sortable: false }
       ],
       items: [],
       form: {
@@ -70,7 +71,10 @@ export default {
       selectedItem: null,
       unsubscribe: null,
       unsubscribeCount: null,
-      options: {},
+      options: {
+        sortBy: ["createdAt"],
+        sortDesc: [true]
+      },
       serverItemsLength: 0,
       docs: []
     };
@@ -78,9 +82,8 @@ export default {
   watch: {
     options: {
       handler(n, o) {
-        console.log(o);
-        console.log(n);
-        this.subscribe();
+        const arrow = n.page - o.page;
+        this.subscribe(arrow);
       },
       deep: true
     }
@@ -94,7 +97,7 @@ export default {
     if (this.unsubscribeCount) this.unsubscribeCount();
   },
   methods: {
-    subscribe() {
+    subscribe(arrow) {
       this.unsubscribeCount = this.$firebase
         .firestore()
         .collection("meta")
@@ -104,29 +107,44 @@ export default {
           this.serverItemsLength = doc.data().count;
         });
 
-      this.unsubscribe = this.$firebase
+      const order = head(this.options.sortBy);
+      const sort = head(this.options.sortDesc) ? "desc" : "asc";
+      const limit = this.options.itemsPerPage;
+
+      const ref = this.$firebase
         .firestore()
         .collection("boards")
-        .limit(this.options.itemsPerPage)
-        .onSnapshot(sn => {
-          if (sn.empty) {
-            this.items = [];
-            return;
-          }
-          this.docs = sn.docs;
-          console.log(head(sn.docs).data());
-          console.log(last(sn.docs).data());
+        .orderBy(order, sort);
+      let query;
 
-          this.items = this.docs.map(v => {
-            const item = v.data();
-            return {
-              id: v.id,
-              title: item.title,
-              content: item.content,
-              createdAt: item.createdAt.toDate()
-            };
-          });
+      switch (arrow) {
+        case -1:
+          query = ref.endBefore(head(this.docs)).limitToLast(limit);
+          break;
+        case 1:
+          query = ref.startAfter(last(this.docs)).limit(limit);
+          break;
+        default:
+          query = ref.limit(limit);
+          break;
+      }
+
+      this.unsubscribe = query.onSnapshot(sn => {
+        if (sn.empty) {
+          this.items = [];
+          return;
+        }
+        this.docs = sn.docs;
+        this.items = this.docs.map(v => {
+          const item = v.data();
+          return {
+            id: v.id,
+            title: item.title,
+            content: item.content,
+            createdAt: item.createdAt.toDate()
+          };
         });
+      });
     },
     openDialog(item) {
       this.selectedItem = item;
