@@ -27,6 +27,11 @@ const routes = [
     path: "/storage",
     name: "storage",
     component: () => import("../views/Storage.vue")
+  },
+  {
+    path: "/editor",
+    name: "editor",
+    component: () => import("../views/Editor.vue")
   }
 ];
 
